@@ -11,6 +11,7 @@
 <jsp:include page="include/header.jsp"></jsp:include>
 
 <div>
+<!-- ¾È³ç -->
 
 	<div>
 	<c:if test="${msg != null}">
