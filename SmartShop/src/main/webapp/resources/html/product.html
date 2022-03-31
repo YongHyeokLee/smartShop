@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>재고관리 프로젝트</title>   
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="shortcut icon" href="#">
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+
+<script src="/js/pager.js"></script>
+
+<script>
+	const pager_url = "/api";
+	const pager_root = "#pager";
+</script>
+
+<style>
+	.hide {
+	display: none;
+	}
+</style>
+
+</head>
+
+<body>
+
+	<div class="container-fluid">
+		<h3>제품 목록</h3>
+		<div class="mb-2">
+			<form class="row">
+			<div class="col-6"></div>    <!-- 그리드 12 -->
+			<div class="col-auto">
+				<select name="search" class="form-select">
+					<option value="0">검색항목</option>
+					<option value="1"}>제품번호</option>
+					<option value="2"}>제품명</option>
+					<option value="3"}>규격</option>
+					<option value="4"}>카테고리</option>
+					<option value="5"}>제조사</option>
+				</select>
+			</div>
+				
+				<div class="col-auto">
+				<input type="text" name="keyword" value="${pager.keyword}" class="form-control">
+				</div>
+				
+				<div class="col-auto">
+				<button class="btn btn-dark">검색</button>
+				</div>
+				
+			</form>
+		</div>
+		
+		<div>
+			<table border="1" class="table table-sm" id="pager">
+				<thead class="table-dark">
+					<tr>
+						<td>제품번호</td>
+						<td>제품명</td>
+						<td>규격</td>
+						<td>카테고리</td>
+						<td>제조사</td>
+						<td>가격</td>
+						<td>관리</td>
+					</tr>
+				</thead>
+				
+				<tbody>  
+					<tr class="empty_msg">
+						<td colspan="6">등록된 제품이 없습니다</td>
+					</tr>
+				</tbody>
+				<tfoot>
+					<tr>
+						<td colspan="7">
+						<div class="pagination justify-content-center">
+							<div class="page-item"><div class="page-link page-first" data-page="1">처음</div></div>
+							<div class="page-item"><div class="page-link page-prev">이전</div></div>
+							<div class="page-item"><div class="page-link page-next">다음</div></div>
+							<div class="page-item"><div class="page-link page-last">마지막</div></div>
+						</div>                                   
+						</td>
+					</tr>					
+				</tfoot>
+				
+			</table>
+		</div>
+		<div>
+			<a href="add" class="btn btn-sm btn-primary">등록</a>
+			<a href=".." class="btn btn-sm btn-primary">이전 메뉴</a>
+		</div>
+		
+	</div>
+
+</body>
+</html>

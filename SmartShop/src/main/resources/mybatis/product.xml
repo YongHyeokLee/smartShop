@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="product">
+
+	<sql id="search">
+		<where>
+			<if test="search == 1">
+				product.code=#{keyword}
+			</if>
+			
+			<if test="search == 2">
+				product.name LIKE CONCAT(CONCAT('%' #{keyword}), '%')
+			</if>
+			
+			<if test="search == 3">
+				product.spec LIKE CONCAT(CONCAT('%' #{keyword}), '%')
+			</if>
+			
+			<if test="search == 4">
+				product.category LIKE CONCAT(CONCAT('%' #{keyword}), '%')
+			</if>
+			
+			<if test="search == 5">
+				product.manufacture LIKE CONCAT(CONCAT('%' #{keyword}), '%')
+			</if>
+
+		</where>
+	</sql>
+	
+	<select id="total" resultType="Integer">   <!-- resultType = int 객체로 만들어줌   -->
+		SELECT COUNT(*) FROM product
+		<include refid="search"></include>
+	</select>
+
+	<select id="list" resultMap="ProductMap">  <!-- 마이바티스 컨비크 알리아스 -->
+		SELECT product.*,    <!-- 충돌방지 product테이블의 모든  product_image.code as image_code -->
+			product_image.code image_code, 
+			product_image.filename filename,       
+			product_image.uuid uuid, 
+			product_image.product_code product_code
+		FROM product
+		LEFT JOIN product_image ON product.code=product_image.product_code   <!-- product와 product_image 를 조인해서 정보를 가져온다-->
+		<include refid="search"></include> 
+		ORDER BY product.code DESC  <!-- 나중에 등록한게 앞으로오게 -->
+		LIMIT #{offset}, #{perPage}
+	</select>
+	
+	<resultMap type="Product" id="ProductMap">  <!-- 최종적으로 넘겨주는 객체 -->
+		<id column="code" property="code"/>  <!--id=pk column=데이터베이스컬럼 property=자바 객체 필드명 -->
+		<result column="name" property="name"/>     <!--set -->
+		<result column="spec" property="spec"/>
+		<result column="category" property="category"/>   
+		<result column="manufacture" property="manufacture"/>
+		<result column="price" property="price"/>
+		<result column="info" property="info"/>   
+		
+		<collection property="images" column="product_code" ofType="ProductImage" javaType="ArrayList">  <!-- ofType=객체타입   javaType=컬랙션클래스  -->
+			<id column="image_code" property="code"/>   <!--type="Product" 이름이 같아서 충돌을 방지하기 위해 as를 걸어준다 -->
+			<result column="filename" property="filename"/>
+			<result column="uuid" property="uuid"/>
+			<result column="product_code" property="productCode"/>
+		</collection>
+	</resultMap>
+	
+	<select id="item" resultMap="ProductMap">
+		SELECT product.*,    <!-- 충돌방지 product테이블의 모든  product_image.code as image_code -->
+		product_image.code image_code, 
+		product_image.filename filename,       
+		product_image.uuid uuid, 
+		product_image.product_code product_code
+		FROM product             
+		LEFT JOIN product_image ON product.code=product_image.product_code  <!-- product_image정보 가져옴 -->
+		WHERE product.code=#{code}
+	</select>
+	
+	<insert id="add">
+		INSERT INTO product 
+		VALUES (NULL, #{name}, #{spec}, #{category}, #{manufacture}, #{price}, #{info})
+		
+		<selectKey keyProperty="code" resultType="Integer" order="AFTER"> <!-- insert했을때 코드 값을 읽어올수 있음  마지막에 얻은  값을 지정해줘야한다  keyProperty= 자바 객체의 필드명  AFTER인서트 후에 실행-->
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+	</insert>	
+	
+	<update id="update">
+		UPDATE product
+		SET name=#{name}, spec=#{spec}, category=#{category}, manufacture=#{manufacture}, price=#{price}, info=#{info}
+		WHERE code=#{code}
+	</update>
+	
+	<delete id="delete">
+		DELETE FROM product
+		WHERE code=#{code}
+	
+	</delete>
+</mapper>

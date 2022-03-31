@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="sales">
+	
+	<select id="stock" resultType="Stock">
+		SELECT sub2_.product code, sub2_.amount ,product.name FROM 
+				(SELECT product, SUM(amount) amount FROM (
+				SELECT product, SUM(amount) amount
+				FROM purchase GROUP BY product
+				UNION ALL
+				SELECT product, (SUM(amount) * -1) amount FROM sales
+				GROUP BY product) sub1_
+			GROUP BY product) sub2_
+		JOIN product ON sub2_.product=product.code
+		WHERE sub2_.amount > 0
+	</select>
+
+
+
+
+
+	<sql id="search">
+		<where>
+			<if test="search == 1">
+				sales.code=#{keyword}
+			</if>
+			
+			<if test="search == 2">
+				sales.name LIKE CONCAT('%', CONCAT(#{keyword}, '%'))     <!-- product 값=   와일드카드-->
+			</if>
+			
+			<if test="search == 3">
+				sales.reg_date LIKE CONCAT('%', CONCAT(#{keyword}, '%'))
+			</if>
+			
+			<if test="search == 4">
+				sales.name LIKE CONCAT('%', CONCAT(#{keyword}, '%'))
+			</if>
+
+		</where>
+	</sql>
+	
+	<select id="total" resultType="Integer">
+		SELECT COUNT(*) FROM sales
+		JOIN product ON sales.product=product.code
+		JOIN partner ON sales.partner=partner.code
+		<include refid="search"></include>
+	</select>
+
+	<select id="list" resultType="Sales">
+		SELECT sales.*, product.name product_name, partner.name partner_name
+		FROM sales
+		JOIN product ON sales.product=product.code
+		JOIN partner ON sales.partner=partner.code 
+		
+		<include refid="search"></include> 
+		LIMIT #{offset}, #{perPage}
+	</select>
+	
+	<select id="item" resultType="Sales">
+		SELECT sales.*, product.name product_name, partner.name partner_name
+		FROM sales
+		JOIN product ON sales.product=product.code
+		JOIN partner ON sales.partner=partner.code
+		WHERE sales.code=#{code}
+	</select>
+	
+	<insert id="add">
+		INSERT INTO sales
+		VALUES (NULL, #{product}, #{partner}, #{amount}, NOW(), #{id})
+	</insert>	
+	
+	<update id="update">
+		UPDATE sales
+		SET product=#{product}, partner=#{partner}, amount=#{amount}
+		WHERE code=#{code}
+	</update>
+	
+	<delete id="delete">
+		DELETE FROM sales
+		WHERE code=#{code}
+	</delete>
+	
+	
+</mapper>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="partner">
+
+	<sql id="search">
+		<where>
+			<if test="search == 1">
+				code=#{keyword}
+			</if>
+			
+			<if test="search == 2">
+				name LIKE CONCAT(CONCAT('%' #{keyword}), '%')
+			</if>
+			
+			<if test="search == 3">
+				tel LIKE CONCAT(CONCAT('%' #{keyword}), '%')
+			</if>
+			
+			<if test="search == 4">
+				address LIKE CONCAT(CONCAT('%' #{keyword}), '%')
+			</if>	
+		</where>
+	</sql>
+	
+	<select id="total" resultType="Integer">
+		SELECT COUNT(*) FROM partner
+		<include refid="search"></include>
+	</select>
+
+	<select id="list" resultType="Partner">
+		SELECT * FROM partner
+		<include refid="search"></include> 
+		LIMIT #{offset}, #{perPage}
+	</select>
+	
+	<select id="item" resultType="Partner">
+		SELECT * FROM partner
+		WHERE code=#{code}
+	</select>
+	
+	<insert id="add">
+		INSERT INTO partner 
+		VALUES (NULL, #{name}, #{tel}, #{address})
+	</insert>	
+	
+	<update id="update">
+		UPDATE partner
+		SET name=#{name}, tel=#{tel}, address=#{address}
+		WHERE code=#{code}
+	</update>
+	
+	<delete id="delete">
+		DELETE FROM partner
+		WHERE code=#{code}
+	
+	</delete>
+</mapper>
